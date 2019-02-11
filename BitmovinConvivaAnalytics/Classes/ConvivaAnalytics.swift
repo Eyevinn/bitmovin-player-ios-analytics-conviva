@@ -212,6 +212,29 @@ public final class ConvivaAnalytics: NSObject {
         client.sendCustomEvent(sessionKey, eventname: name, withAttributes: attributes)
     }
 
+    /**
+     Puts the session state in a notMonitored state.
+     */
+    public func pauseTracking() {
+        // AdStart is the preferred way to pause tracking according to conviva.
+        client.adStart(sessionKey,
+                       adStream: .ADSTREAM_SEPARATE,
+                       adPlayer: .ADPLAYER_SEPARATE,
+                       adPosition: .ADPOSITION_PREROLL)
+        client.detachPlayer(sessionKey)
+        logger.debugLog(message: "Tracking paused.")
+    }
+
+    /**
+     Puts the session state from a notMonitored state into the last one tracked.
+     */
+    public func resumeTracking() {
+        // AdEnd is the preferred way to resume tracking according to conviva.
+        client.adEnd(sessionKey)
+        client.attachPlayer(sessionKey, playerStateManager: playerStateManager)
+        logger.debugLog(message: "Tracking resumed.")
+    }
+
     private func customEvent(event: PlayerEvent, args: [String: String] = [:]) {
         if !isValidSession {
             return
